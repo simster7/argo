@@ -551,17 +551,17 @@ func (woc *wfOperationCtx) processNodeRetries(node *wfv1.NodeStatus, retryStrate
 	if lastChildNode.Successful() {
 		node.Outputs = lastChildNode.Outputs.DeepCopy()
 		woc.wf.Status.Nodes[node.ID] = *node
-		return woc.markNodePhase(node.Name, wfv1.NodeSucceeded), nil
+		return woc.markNodePhase(node.Name, wfv1.NodeSucceeded, "", nil), nil
 	}
 
 	if !lastChildNode.CanRetry() {
 		woc.log.Infof("Node cannot be retried. Marking it failed")
-		return woc.markNodePhase(node.Name, wfv1.NodeFailed, lastChildNode.Message), nil
+		return woc.markNodePhase(node.Name, wfv1.NodeFailed, "", nil, lastChildNode.Message), nil
 	}
 
 	if retryStrategy.Limit != nil && int32(len(node.Children)) > *retryStrategy.Limit {
 		woc.log.Infoln("No more retries left. Failing...")
-		return woc.markNodePhase(node.Name, wfv1.NodeFailed, "No more retries left"), nil
+		return woc.markNodePhase(node.Name, wfv1.NodeFailed, "", nil, "No more retries left"), nil
 	}
 
 	woc.log.Infof("%d child nodes of %s failed. Trying again...", len(node.Children), node.Name)
@@ -1388,7 +1388,7 @@ func (woc *wfOperationCtx) initializeNode(nodeName string, nodeType wfv1.NodeTyp
 }
 
 // markNodePhase marks a node with the given phase, creating the node if necessary and handles timestamps
-func (woc *wfOperationCtx) markNodePhase(nodeName string, phase wfv1.NodePhase, message ...string) *wfv1.NodeStatus {
+func (woc *wfOperationCtx) markNodePhase(nodeName string, phase wfv1.NodePhase, prefix string, scope *wfScope, message ...string) *wfv1.NodeStatus {
 	node := woc.getNodeByName(nodeName)
 	if node == nil {
 		panic(fmt.Sprintf("node %s uninitialized", nodeName))
@@ -1411,12 +1411,18 @@ func (woc *wfOperationCtx) markNodePhase(nodeName string, phase wfv1.NodePhase, 
 		woc.updated = true
 	}
 	woc.wf.Status.Nodes[node.ID] = *node
+	if prefix != "workflow" {
+		key := fmt.Sprintf("%s.%s.status", prefix, nodeName)
+		if scope != nil {
+			scope.addParamToScope(key, string(phase))
+		}
+	}
 	return node
 }
 
 // markNodeError is a convenience method to mark a node with an error and set the message from the error
 func (woc *wfOperationCtx) markNodeError(nodeName string, err error) *wfv1.NodeStatus {
-	return woc.markNodePhase(nodeName, wfv1.NodeError, err.Error())
+	return woc.markNodePhase(nodeName, wfv1.NodeError, "", nil, err.Error())
 }
 
 // checkParallelism checks if the given template is able to be executed, considering the current active pods and workflow/template parallelism
@@ -1817,7 +1823,7 @@ func (woc *wfOperationCtx) executeResource(nodeName string, tmpl *wfv1.Template,
 
 func (woc *wfOperationCtx) executeSuspend(nodeName string, tmpl *wfv1.Template, boundaryID string) error {
 	woc.log.Infof("node %s suspended", nodeName)
-	_ = woc.markNodePhase(nodeName, wfv1.NodeRunning)
+	_ = woc.markNodePhase(nodeName, wfv1.NodeRunning, "", nil)
 	return nil
 }
 

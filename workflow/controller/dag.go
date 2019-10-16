@@ -199,7 +199,7 @@ func (d *dagContext) hasMoreRetries(node *wfv1.NodeStatus) bool {
 }
 
 func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresolution.Context, tmpl *wfv1.Template, boundaryID string) error {
-	node := woc.markNodePhase(nodeName, wfv1.NodeRunning)
+	node := woc.markNodePhase(nodeName, wfv1.NodeRunning, "tasks", nil)
 
 	defer func() {
 		if woc.wf.Status.Nodes[node.ID].Completed() {
@@ -226,9 +226,15 @@ func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresoluti
 		targetTasks = strings.Split(tmpl.DAG.Target, " ")
 	}
 
+	// set outputs from tasks in order for DAG templates to support outputs
+	scope := wfScope{
+		tmpl:  tmpl,
+		scope: make(map[string]interface{}),
+	}
+
 	// kick off execution of each target task asynchronously
 	for _, taskNames := range targetTasks {
-		woc.executeDAGTask(dagCtx, taskNames)
+		woc.executeDAGTask(dagCtx, taskNames, &scope)
 	}
 	// check if we are still running any tasks in this dag and return early if we do
 	dagPhase := dagCtx.assessDAGPhase(targetTasks, woc.wf.Status.Nodes)
@@ -236,15 +242,10 @@ func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresoluti
 	case wfv1.NodeRunning:
 		return nil
 	case wfv1.NodeError, wfv1.NodeFailed:
-		_ = woc.markNodePhase(nodeName, dagPhase)
+		_ = woc.markNodePhase(nodeName, dagPhase, "tasks", &scope)
 		return nil
 	}
 
-	// set outputs from tasks in order for DAG templates to support outputs
-	scope := wfScope{
-		tmpl:  tmpl,
-		scope: make(map[string]interface{}),
-	}
 	for _, task := range tmpl.DAG.Tasks {
 		taskNode := dagCtx.GetTaskNode(task.Name)
 		if taskNode == nil {
@@ -278,12 +279,12 @@ func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresoluti
 	node.OutboundNodes = outbound
 	woc.wf.Status.Nodes[node.ID] = *node
 
-	_ = woc.markNodePhase(nodeName, wfv1.NodeSucceeded)
+	_ = woc.markNodePhase(nodeName, wfv1.NodeSucceeded, "tasks", &scope)
 	return nil
 }
 
 // executeDAGTask traverses and executes the upward chain of dependencies of a task
-func (woc *wfOperationCtx) executeDAGTask(dagCtx *dagContext, taskName string) {
+func (woc *wfOperationCtx) executeDAGTask(dagCtx *dagContext, taskName string, scope *wfScope) {
 	if _, ok := dagCtx.visited[taskName]; ok {
 		return
 	}
@@ -311,7 +312,7 @@ func (woc *wfOperationCtx) executeDAGTask(dagCtx *dagContext, taskName string) {
 		dependenciesCompleted = false
 		dependenciesSuccessful = false
 		// recurse our dependency
-		woc.executeDAGTask(dagCtx, depName)
+		woc.executeDAGTask(dagCtx, depName, scope)
 	}
 	if !dependenciesCompleted {
 		return
@@ -418,7 +419,7 @@ func (woc *wfOperationCtx) executeDAGTask(dagCtx *dagContext, taskName string) {
 				groupPhase = node.Phase
 			}
 		}
-		woc.markNodePhase(taskGroupNode.Name, groupPhase)
+		woc.markNodePhase(taskGroupNode.Name, groupPhase, "tasks", scope)
 	}
 }
 

@@ -40,7 +40,7 @@ func (woc *wfOperationCtx) applyExecutionControl(pod *apiv1.Pod, wfNodesLock *sy
 				} else {
 					message = fmt.Sprintf("step exceeded workflow deadline %s", *woc.workflowDeadline)
 				}
-				woc.markNodePhase(node.Name, wfv1.NodeFailed, message)
+				woc.markNodePhase(node.Name, wfv1.NodeFailed, "", nil, message)
 				return nil
 			}
 			// If we fail to delete the pod, fall back to setting the annotation
