@@ -26,7 +26,7 @@ type stepsContext struct {
 }
 
 func (woc *wfOperationCtx) executeSteps(nodeName string, tmplCtx *templateresolution.Context, tmpl *wfv1.Template, boundaryID string) error {
-	node := woc.markNodePhase(nodeName, wfv1.NodeRunning, "workflow", nil)
+	node := woc.markNodePhase(nodeName, wfv1.NodeRunning)
 
 	defer func() {
 		if woc.wf.Status.Nodes[node.ID].Completed() {
@@ -49,7 +49,7 @@ func (woc *wfOperationCtx) executeSteps(nodeName string, tmplCtx *templateresolu
 		if woc.getNodeByName(sgNodeName) == nil {
 			_ = woc.initializeNode(sgNodeName, wfv1.NodeTypeStepGroup, tmpl, stepsCtx.boundaryID, wfv1.NodeRunning)
 		} else {
-			_ = woc.markNodePhase(sgNodeName, wfv1.NodeRunning, "steps", stepsCtx.scope)
+			_ = woc.markNodePhase(sgNodeName, wfv1.NodeRunning)
 		}
 		// The following will connect the step group node to its parents.
 		if i == 0 {
@@ -84,7 +84,7 @@ func (woc *wfOperationCtx) executeSteps(nodeName string, tmplCtx *templateresolu
 			failMessage := fmt.Sprintf("step group %s was unsuccessful: %s", sgNode.ID, sgNode.Message)
 			woc.log.Info(failMessage)
 			woc.updateOutboundNodes(nodeName, tmpl)
-			_ = woc.markNodePhase(nodeName, wfv1.NodeFailed, "steps", stepsCtx.scope, sgNode.Message)
+			_ = woc.markNodePhase(nodeName, wfv1.NodeFailed, sgNode.Message)
 			return nil
 		}
 
@@ -132,7 +132,7 @@ func (woc *wfOperationCtx) executeSteps(nodeName string, tmplCtx *templateresolu
 		woc.wf.Status.Nodes[node.ID] = *node
 	}
 
-	_ = woc.markNodePhase(nodeName, wfv1.NodeSucceeded, "steps", stepsCtx.scope)
+	_ = woc.markNodePhase(nodeName, wfv1.NodeSucceeded)
 	return nil
 }
 
@@ -218,7 +218,7 @@ func (woc *wfOperationCtx) executeStepGroup(stepGroup []wfv1.WorkflowStep, sgNod
 				errMsg := fmt.Sprintf("child '%s' errored", childNodeName)
 				woc.log.Infof("Step group node %s deemed errored due to child %s error: %s", node, childNodeName, err.Error())
 				woc.addChildNode(sgNodeName, childNodeName)
-				return woc.markNodePhase(node.Name, wfv1.NodeError, "steps", stepsCtx.scope, errMsg)
+				return woc.markNodePhase(node.Name, wfv1.NodeError, errMsg)
 			}
 		}
 		if childNode != nil {
@@ -241,11 +241,11 @@ func (woc *wfOperationCtx) executeStepGroup(stepGroup []wfv1.WorkflowStep, sgNod
 		if !childNode.Successful() && !step.ContinuesOn(childNode.Phase) {
 			failMessage := fmt.Sprintf("child '%s' failed", childNodeID)
 			woc.log.Infof("Step group node %s deemed failed: %s", node, failMessage)
-			return woc.markNodePhase(node.Name, wfv1.NodeFailed, "steps", stepsCtx.scope, failMessage)
+			return woc.markNodePhase(node.Name, wfv1.NodeFailed, failMessage)
 		}
 	}
 	woc.log.Infof("Step group node %v successful", node)
-	return woc.markNodePhase(node.Name, wfv1.NodeSucceeded, "steps", stepsCtx.scope)
+	return woc.markNodePhase(node.Name, wfv1.NodeSucceeded)
 }
 
 // shouldExecute evaluates a already substituted when expression to decide whether or not a step should execute
@@ -309,7 +309,7 @@ func (woc *wfOperationCtx) resolveReferences(stepGroup []wfv1.WorkflowStep, scop
 		if err != nil {
 			return nil, errors.InternalWrapError(err)
 		}
-		woc.log.Infof("Resolving references step bytes: %s", string(stepBytes))
+		woc.log.Infof("Resolving references OLD step bytes: %s", string(stepBytes))
 		mapf, _ := json.MarshalIndent(scope.replaceMap(), "", " ")
 		woc.log.Infof("Resolving references step maps: %s", string(mapf))
 
@@ -318,6 +318,8 @@ func (woc *wfOperationCtx) resolveReferences(stepGroup []wfv1.WorkflowStep, scop
 		if err != nil {
 			return nil, err
 		}
+
+		woc.log.Infof("Resolving references NEW step bytes: %s", string(newStepStr))
 		var newStep wfv1.WorkflowStep
 		err = json.Unmarshal([]byte(newStepStr), &newStep)
 		if err != nil {

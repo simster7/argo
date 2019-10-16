@@ -372,15 +372,22 @@ func substituteParams(tmpl *wfv1.Template, globalParams, localParams map[string]
 func Replace(fstTmpl *fasttemplate.Template, replaceMap map[string]string, allowUnresolved bool) (string, error) {
 	var unresolvedErr error
 	replacedTmpl := fstTmpl.ExecuteFuncString(func(w io.Writer, tag string) (int, error) {
+
+		log.Infof("SIMON TRYING TO REPLACE: %s", tag)
+		mapf, _ := json.MarshalIndent(replaceMap, "", " ")
+		log.Infof("SIMON TRYING TO REPLACE with map: %s", string(mapf))
 		replacement, ok := replaceMap[tag]
 		if !ok {
+			log.Infof("SIMON %s not found", tag)
 			if allowUnresolved {
 				// just write the same string back
+				log.Infof("SIMON %s writing back", tag)
 				return w.Write([]byte(fmt.Sprintf("{{%s}}", tag)))
 			}
 			unresolvedErr = errors.Errorf(errors.CodeBadRequest, "failed to resolve (change replace) {{%s}}", tag)
 			return 0, nil
 		}
+		log.Infof("SIMON SUCCESSFUL REPLACEMENT TO", replacement)
 		// The following escapes any special characters (e.g. newlines, tabs, etc...)
 		// in preparation for substitution
 		replacement = strconv.Quote(replacement)

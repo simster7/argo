@@ -158,15 +158,15 @@ func TestProcessNodesWithRetries(t *testing.T) {
 	assert.Equal(t, n.Phase, wfv1.NodeRunning)
 
 	// Mark lastChild as successful.
-	woc.markNodePhase(lastChild.Name, wfv1.NodeSucceeded, "", nil)
+	woc.markNodePhase(lastChild.Name, wfv1.NodeSucceeded)
 	n, err = woc.processNodeRetries(n, retries)
 	assert.Nil(t, err)
 	// The parent node also gets marked as Succeeded.
 	assert.Equal(t, n.Phase, wfv1.NodeSucceeded)
 
 	// Mark the parent node as running again and the lastChild as failed.
-	woc.markNodePhase(n.Name, wfv1.NodeRunning, "", nil)
-	woc.markNodePhase(lastChild.Name, wfv1.NodeFailed, "", nil)
+	woc.markNodePhase(n.Name, wfv1.NodeRunning)
+	woc.markNodePhase(lastChild.Name, wfv1.NodeFailed)
 	woc.processNodeRetries(n, retries)
 	n = woc.getNodeByName(nodeName)
 	assert.Equal(t, n.Phase, wfv1.NodeRunning)

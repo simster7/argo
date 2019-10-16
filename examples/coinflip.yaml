@@ -12,14 +12,17 @@ spec:
   templates:
   - name: coinflip
     steps:
-    - - name: flip-coin
+    - - name: flip-coin3
         template: flip-coin
     - - name: heads
         template: heads
-        when: "{{steps.flip-coin.outputs.result}} == heads"
+        when: "{{steps.flip-coin3.outputs.result}} == heads"
       - name: tails
         template: tails
-        when: "{{steps.flip-coin.outputs.result}} == tails"
+        when: "{{steps.flip-coin3.outputs.result}} == tails"
+        arguments:
+          parameters: [{name: message, value: "{{steps.flip-coin3.status}}"}]
+
 
   - name: flip-coin
     script:
@@ -37,7 +40,12 @@ spec:
       args: ["echo \"it was heads\""]
 
   - name: tails
+    inputs:
+      parameters:
+          - name: message
     container:
-      image: alpine:3.6
-      command: [sh, -c]
-      args: ["echo \"it was tails\""]
+      image: docker/whalesay
+      command: [cowsay]
+      args: ["{{inputs.parameters.message}}"]
+
+

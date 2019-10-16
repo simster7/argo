@@ -199,7 +199,7 @@ func (d *dagContext) hasMoreRetries(node *wfv1.NodeStatus) bool {
 }
 
 func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresolution.Context, tmpl *wfv1.Template, boundaryID string) error {
-	node := woc.markNodePhase(nodeName, wfv1.NodeRunning, "tasks", nil)
+	node := woc.markNodePhase(nodeName, wfv1.NodeRunning)
 
 	defer func() {
 		if woc.wf.Status.Nodes[node.ID].Completed() {
@@ -242,7 +242,7 @@ func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresoluti
 	case wfv1.NodeRunning:
 		return nil
 	case wfv1.NodeError, wfv1.NodeFailed:
-		_ = woc.markNodePhase(nodeName, dagPhase, "tasks", &scope)
+		_ = woc.markNodePhase(nodeName, dagPhase)
 		return nil
 	}
 
@@ -279,7 +279,7 @@ func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresoluti
 	node.OutboundNodes = outbound
 	woc.wf.Status.Nodes[node.ID] = *node
 
-	_ = woc.markNodePhase(nodeName, wfv1.NodeSucceeded, "tasks", &scope)
+	_ = woc.markNodePhase(nodeName, wfv1.NodeSucceeded)
 	return nil
 }
 
@@ -419,7 +419,7 @@ func (woc *wfOperationCtx) executeDAGTask(dagCtx *dagContext, taskName string, s
 				groupPhase = node.Phase
 			}
 		}
-		woc.markNodePhase(taskGroupNode.Name, groupPhase, "tasks", scope)
+		woc.markNodePhase(taskGroupNode.Name, groupPhase)
 	}
 }
 
