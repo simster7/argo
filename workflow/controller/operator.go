@@ -1589,11 +1589,9 @@ func (woc *wfOperationCtx) processNodeOutputs(scope *wfScope, prefix string, nod
 		key := fmt.Sprintf("%s.ip", prefix)
 		scope.addParamToScope(key, node.PodIP)
 	}
-	woc.log.Infof("SIMON Node phase is: %s", string(node.Phase))
 	if node.Phase != "" {
 		key := fmt.Sprintf("%s.status", prefix)
 		scope.addParamToScope(key, string(node.Phase))
-		woc.log.Infof("SIMON Node Setting key %s to: %s", key, string(node.Phase))
 	}
 	woc.addOutputsToScope(prefix, node.Outputs, scope)
 }

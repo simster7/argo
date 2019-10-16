@@ -292,8 +292,6 @@ func shouldExecute(when string) (bool, error) {
 // 2) dereferencing artifacts from previous steps
 // 3) dereferencing artifacts from inputs
 func (woc *wfOperationCtx) resolveReferences(stepGroup []wfv1.WorkflowStep, scope *wfScope) ([]wfv1.WorkflowStep, error) {
-
-	woc.log.Infof("Resolving references")
 	newStepGroup := make([]wfv1.WorkflowStep, len(stepGroup))
 
 	// Step 0: replace all parameter scope references for volumes
@@ -309,17 +307,11 @@ func (woc *wfOperationCtx) resolveReferences(stepGroup []wfv1.WorkflowStep, scop
 		if err != nil {
 			return nil, errors.InternalWrapError(err)
 		}
-		woc.log.Infof("Resolving references OLD step bytes: %s", string(stepBytes))
-		mapf, _ := json.MarshalIndent(scope.replaceMap(), "", " ")
-		woc.log.Infof("Resolving references step maps: %s", string(mapf))
-
 		fstTmpl := fasttemplate.New(string(stepBytes), "{{", "}}")
 		newStepStr, err := common.Replace(fstTmpl, scope.replaceMap(), true)
 		if err != nil {
 			return nil, err
 		}
-
-		woc.log.Infof("Resolving references NEW step bytes: %s", string(newStepStr))
 		var newStep wfv1.WorkflowStep
 		err = json.Unmarshal([]byte(newStepStr), &newStep)
 		if err != nil {

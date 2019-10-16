@@ -226,15 +226,9 @@ func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresoluti
 		targetTasks = strings.Split(tmpl.DAG.Target, " ")
 	}
 
-	// set outputs from tasks in order for DAG templates to support outputs
-	scope := wfScope{
-		tmpl:  tmpl,
-		scope: make(map[string]interface{}),
-	}
-
 	// kick off execution of each target task asynchronously
 	for _, taskNames := range targetTasks {
-		woc.executeDAGTask(dagCtx, taskNames, &scope)
+		woc.executeDAGTask(dagCtx, taskNames)
 	}
 	// check if we are still running any tasks in this dag and return early if we do
 	dagPhase := dagCtx.assessDAGPhase(targetTasks, woc.wf.Status.Nodes)
@@ -246,6 +240,11 @@ func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresoluti
 		return nil
 	}
 
+	// set outputs from tasks in order for DAG templates to support outputs
+	scope := wfScope{
+		tmpl:  tmpl,
+		scope: make(map[string]interface{}),
+	}
 	for _, task := range tmpl.DAG.Tasks {
 		taskNode := dagCtx.GetTaskNode(task.Name)
 		if taskNode == nil {
@@ -284,7 +283,7 @@ func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresoluti
 }
 
 // executeDAGTask traverses and executes the upward chain of dependencies of a task
-func (woc *wfOperationCtx) executeDAGTask(dagCtx *dagContext, taskName string, scope *wfScope) {
+func (woc *wfOperationCtx) executeDAGTask(dagCtx *dagContext, taskName string) {
 	if _, ok := dagCtx.visited[taskName]; ok {
 		return
 	}
@@ -312,7 +311,7 @@ func (woc *wfOperationCtx) executeDAGTask(dagCtx *dagContext, taskName string, s
 		dependenciesCompleted = false
 		dependenciesSuccessful = false
 		// recurse our dependency
-		woc.executeDAGTask(dagCtx, depName, scope)
+		woc.executeDAGTask(dagCtx, depName)
 	}
 	if !dependenciesCompleted {
 		return

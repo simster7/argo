@@ -399,9 +399,8 @@ func resolveAllVariables(scope map[string]interface{}, tmplStr string) error {
 				// we are *probably* referencing a undetermined item using withParam
 				// NOTE: this is far from foolproof.
 			} else if strings.HasPrefix(tag, common.GlobalVarWorkflowCreationTimestamp) {
-			} else if strings.HasSuffix(tag, ".status") {
 			} else {
-				unresolvedErr = fmt.Errorf("failed to resolve (Change was made) {{%s}}", tag)
+				unresolvedErr = fmt.Errorf("failed to resolve {{%s}}", tag)
 			}
 		}
 		return 0, nil
@@ -552,6 +551,7 @@ func (ctx *templateValidationCtx) validateSteps(scope map[string]interface{}, tm
 			}
 			stepNames[step.Name] = true
 			prefix := fmt.Sprintf("steps.%s", step.Name)
+			scope[fmt.Sprintf("%s.status", prefix)] = true
 			err := addItemsToScope(prefix, step.WithItems, step.WithParam, step.WithSequence, scope)
 			if err != nil {
 				return errors.Errorf(errors.CodeBadRequest, "templates.%s.steps[%d].%s %s", tmpl.Name, i, step.Name, err.Error())
