@@ -399,8 +399,9 @@ func resolveAllVariables(scope map[string]interface{}, tmplStr string) error {
 				// we are *probably* referencing a undetermined item using withParam
 				// NOTE: this is far from foolproof.
 			} else if strings.HasPrefix(tag, common.GlobalVarWorkflowCreationTimestamp) {
+			} else if strings.HasSuffix(tag, ".status") {
 			} else {
-				unresolvedErr = fmt.Errorf("failed to resolve {{%s}}", tag)
+				unresolvedErr = fmt.Errorf("failed to resolve (Change was made) {{%s}}", tag)
 			}
 		}
 		return 0, nil

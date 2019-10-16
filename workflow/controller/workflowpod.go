@@ -967,7 +967,7 @@ func verifyResolvedVariables(obj interface{}) error {
 	var unresolvedErr error
 	fstTmpl := fasttemplate.New(string(str), "{{", "}}")
 	fstTmpl.ExecuteFuncString(func(w io.Writer, tag string) (int, error) {
-		unresolvedErr = errors.Errorf(errors.CodeBadRequest, "failed to resolve {{%s}}", tag)
+		unresolvedErr = errors.Errorf(errors.CodeBadRequest, "failed to resolve (change work) {{%s}}", tag)
 		return 0, nil
 	})
 	return unresolvedErr
