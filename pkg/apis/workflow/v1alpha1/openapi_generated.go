@@ -2896,7 +2896,8 @@ func schema_pkg_apis_workflow_v1alpha1_WorkflowSpec(ref common.ReferenceCallback
 					},
 					"podGC": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/argoproj/argo/pkg/apis/workflow/v1alpha1.PodGC"),
+							Description: "PodGC describes the strategy to use when to deleting completed pods",
+							Ref:         ref("github.com/argoproj/argo/pkg/apis/workflow/v1alpha1.PodGC"),
 						},
 					},
 					"podPriorityClassName": {
@@ -2933,7 +2934,8 @@ func schema_pkg_apis_workflow_v1alpha1_WorkflowSpec(ref common.ReferenceCallback
 					},
 					"securityContext": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/api/core/v1.PodSecurityContext"),
+							Description: "SecurityContext holds pod-level security attributes and common container settings. Optional: Defaults to empty.  See type description for default values of each field.",
+							Ref:         ref("k8s.io/api/core/v1.PodSecurityContext"),
 						},
 					},
 					"podSpecPatch": {
