@@ -1931,6 +1931,7 @@ func processItem(fstTmpl *fasttemplate.Template, name string, index int, item wf
 	replaceMap := make(map[string]string)
 	var newName string
 	val := item.Type
+
 	switch val {
 	case wfv1.String, wfv1.Number, wfv1.Bool:
 		replaceMap["item"] = fmt.Sprintf("%v", val)
@@ -2003,11 +2004,13 @@ func expandSequence(seq *wfv1.Sequence) ([]wfv1.Item, error) {
 	}
 	if start <= end {
 		for i := start; i <= end; i++ {
+
 			items = append(items, wfv1.Item{Type: wfv1.Number, StrVal: fmt.Sprintf(format, i)})
 		}
 	} else {
 		for i := start; i >= end; i-- {
 			items = append(items, wfv1.Item{Type: wfv1.Number, StrVal: fmt.Sprintf(format, i)})
+
 		}
 	}
 	return items, nil
