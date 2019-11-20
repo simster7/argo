@@ -157,7 +157,8 @@ func (as *ArgoServer) newGRPCServer() *grpc.Server {
 	grpcServer := grpc.NewServer(sOpts...)
 	configMap, err := as.RsyncConfig(as.Namespace, as.WfClientSet, as.KubeClientset)
 	if err != nil {
-		panic("Error marshalling config map")
+		// TODO: this currently returns an error every time
+		log.Errorf("Error marshalling config map: %s", err)
 	}
 	workflowServer := workflow.NewWorkflowServer(as.Namespace, as.WfClientSet, as.KubeClientset, configMap, as.EnableClientAuth)
 	workflow.RegisterWorkflowServiceServer(grpcServer, workflowServer)

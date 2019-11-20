@@ -106,9 +106,9 @@ argo-server:
 .PHONY: argo-server-image
 argo-server-image:
 ifeq ($(DEV_IMAGE), true)
-# 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -i -ldflags '${LDFLAGS}' -o workflow-controller ./cmd/server
-# 	docker build -t $(IMAGE_PREFIX)argo-server:$(IMAGE_TAG) -f Dockerfile.workflow-controller-dev .
-# 	rm -f argo-server
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -i -ldflags '${LDFLAGS}' -o argo-server ./cmd/server
+	docker build -t $(IMAGE_PREFIX)argo-server:$(IMAGE_TAG) -f Dockerfile.argo-server-dev .
+	rm -f argo-server
 else
 	docker build -t $(IMAGE_PREFIX)argo-server:$(IMAGE_TAG) --target argo-server .
 endif
