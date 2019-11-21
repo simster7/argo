@@ -9,7 +9,7 @@ const argv = yargs.argv;
 const ip = argv.ip || '0.0.0.0';
 const port = argv.port || '8001';
 // tslint:disable-next-line
-console.log(`start argo-ui on ${argv.ip}:${argv.port}`);
+console.log(`start argo-ui on ${ip}:${port}`);
 
 app.create(
   argv.uiDist || path.join(__dirname, '..', '..', 'dist', 'app'),
