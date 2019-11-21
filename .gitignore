@@ -1,12 +1,14 @@
+.DS_Store
+.envrc
+debug.test
 .vscode/
 .idea/
-.DS_Store
 vendor/
 dist/
-# delve debug binaries
 cmd/**/debug
 hack/**/debug
-debug.test
 *.iml
 coverage.out
-.envrc
+ui/node_modules
+ui/dist
+ui/bundle
