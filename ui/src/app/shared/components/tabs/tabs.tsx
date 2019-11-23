@@ -25,7 +25,7 @@ export interface TabsProps extends React.Props<any> {
 
 export interface TabsState {
     selectedTabKey: string;
-    indicatorPosition: { left: number; right: number; directionToLeft: boolean };
+    indicatorPosition: {left: number; right: number; directionToLeft: boolean};
 }
 
 require('./tabs.scss');
@@ -35,7 +35,10 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
 
     constructor(props: TabsProps) {
         super(props);
-        this.state = { selectedTabKey: props.selectedTabKey, indicatorPosition: { left: 0, right: 0, directionToLeft: false } };
+        this.state = {
+            selectedTabKey: props.selectedTabKey,
+            indicatorPosition: {left: 0, right: 0, directionToLeft: false}
+        };
     }
 
     public componentDidUpdate() {
@@ -47,33 +50,44 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
     }
 
     public render() {
-        const selectedTab = this.props.tabs.find((tab) => this.isTabSelected(tab));
+        const selectedTab = this.props.tabs.find(tab => this.isTabSelected(tab));
         return (
-            <div className='tabs' ref={(container) => this.container = container}>
-                <div className={classNames('tabs__nav', { center: this.props.navCenter, transparent: this.props.navTransparent })}>
+            <div className='tabs' ref={container => (this.container = container)}>
+                <div
+                    className={classNames('tabs__nav', {
+                        center: this.props.navCenter,
+                        transparent: this.props.navTransparent
+                    })}>
                     <div className={classNames({'fixed-width': this.props.fixed})}>
                         <div className={classNames('tabs__nav-wrapper')}>
-                            {this.props.tabs.map((tab) => (
+                            {this.props.tabs.map(tab => (
                                 <a key={tab.key} onClick={() => this.selectTab(tab)} className={classNames({active: this.isTabSelected(tab)})}>
-                                    {tab.icon && <i className={`fa ${tab.icon}`}/>} {tab.title}
-                                    {tab.badge && <span className='fa-stack has-badge' data-count={tab.badge}/>}
+                                    {tab.icon && <i className={`fa ${tab.icon}`} />} {tab.title}
+                                    {tab.badge && <span className='fa-stack has-badge' data-count={tab.badge} />}
                                 </a>
                             ))}
-                            <div className={classNames('tabs__indicator', {
-                                'to-right': !this.state.indicatorPosition.directionToLeft,
-                                'to-left': this.state.indicatorPosition.directionToLeft,
-                            })} style={{left: this.state.indicatorPosition.left, right: this.state.indicatorPosition.right}}/>
+                            <div
+                                className={classNames('tabs__indicator', {
+                                    'to-right': !this.state.indicatorPosition.directionToLeft,
+                                    'to-left': this.state.indicatorPosition.directionToLeft
+                                })}
+                                style={{
+                                    left: this.state.indicatorPosition.left,
+                                    right: this.state.indicatorPosition.right
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
                 {selectedTab && (
-                    <div className={classNames('tabs__content', {
+                    <div
+                        className={classNames('tabs__content', {
                             'tabs__content--scrollable': selectedTab.isOnlyContentScrollable,
-                            'tabs__content--no-padding': selectedTab.noPadding,
+                            'tabs__content--no-padding': selectedTab.noPadding
                         })}
                         style={{
                             height: selectedTab.isOnlyContentScrollable ? `calc(100vh - ${selectedTab.extraVerticalScrollPadding || 0}px)` : 'inherit',
-                            width: `calc(100% - ${selectedTab.extraHorizontalScrollPadding || 0}px)`,
+                            width: `calc(100% - ${selectedTab.extraHorizontalScrollPadding || 0}px)`
                         }}>
                         {selectedTab.content}
                     </div>
@@ -83,7 +97,7 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
     }
 
     private selectTab(tab: Tab) {
-        this.setState({ selectedTabKey: tab.key });
+        this.setState({selectedTabKey: tab.key});
         if (this.props.onTabSelected) {
             this.props.onTabSelected(tab.key);
         }
@@ -101,7 +115,7 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
         return {
             left: el.offsetLeft,
             right: parentEl.offsetWidth - el.offsetWidth - el.offsetLeft,
-            directionToLeft: this.state.indicatorPosition.left > el.offsetLeft,
+            directionToLeft: this.state.indicatorPosition.left > el.offsetLeft
         };
     }
 
@@ -111,7 +125,9 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
                 const parentEl = this.container.querySelector('.tabs__nav-wrapper') as HTMLElement;
                 const el = parentEl.querySelector('.active') as HTMLElement;
                 if (el) {
-                    this.setState({ indicatorPosition: this.getIndicatorPosition(parentEl, el) });
+                    this.setState({
+                        indicatorPosition: this.getIndicatorPosition(parentEl, el)
+                    });
                 }
             }
         }, 0);

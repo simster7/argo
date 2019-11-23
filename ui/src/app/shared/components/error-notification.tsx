@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export const ErrorNotification = (props: { title?: string; e: any }) => {
+export const ErrorNotification = (props: {title?: string; e: any}) => {
     let message;
     if (props.e.response && props.e.response.text) {
         try {
@@ -23,5 +23,5 @@ export const ErrorNotification = (props: { title?: string; e: any }) => {
     if (props.title) {
         message = `${props.title}: ${message}`;
     }
-    return (<span>{message}</span>);
+    return <span>{message}</span>;
 };

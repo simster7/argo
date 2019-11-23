@@ -1,7 +1,7 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 
 export interface DropDownProps {
     isMenu?: boolean;
@@ -26,7 +26,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
 
     constructor(props: DropDownProps) {
         super(props);
-        this.state = { opened: false, left: 0, top: 0};
+        this.state = {opened: false, left: 0, top: 0};
     }
 
     public render() {
@@ -41,43 +41,56 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
         }
 
         return (
-            <div className='argo-dropdown' ref={(el) => this.el = el}>
-                <div className='argo-dropdown__anchor' onClick={(event) => { this.open(); event.stopPropagation(); }}>
-                    <this.props.anchor/>
+            <div className='argo-dropdown' ref={el => (this.el = el)}>
+                <div
+                    className='argo-dropdown__anchor'
+                    onClick={event => {
+                        this.open();
+                        event.stopPropagation();
+                    }}>
+                    <this.props.anchor />
                 </div>
-                {ReactDOM.createPortal((
-                    <div className={classNames('argo-dropdown__content', { 'opened': this.state.opened, 'is-menu': this.props.isMenu })}
+                {ReactDOM.createPortal(
+                    <div
+                        className={classNames('argo-dropdown__content', {
+                            'opened': this.state.opened,
+                            'is-menu': this.props.isMenu
+                        })}
                         style={{top: this.state.top, left: this.state.left}}
-                        ref={(el) => this.content = el}>
+                        ref={el => (this.content = el)}>
                         {children}
-                    </div>
-                ), document.body)}
+                    </div>,
+                    document.body
+                )}
             </div>
         );
     }
 
     public componentWillMount() {
-        this.subscriptions = [Observable.merge(
-            dropDownOpened.filter((dropdown) => dropdown !== this),
-            Observable.fromEvent(document, 'click').filter((event: Event) => {
-                return this.content && this.state.opened && !this.content.contains(event.target as Node) && !this.el.contains(event.target as Node);
+        this.subscriptions = [
+            Observable.merge(
+                dropDownOpened.filter(dropdown => dropdown !== this),
+                Observable.fromEvent(document, 'click').filter((event: Event) => {
+                    return this.content && this.state.opened && !this.content.contains(event.target as Node) && !this.el.contains(event.target as Node);
+                })
+            ).subscribe(() => {
+                this.close();
             }),
-        ).subscribe(() => {
-            this.close();
-        }), Observable.fromEvent(document, 'scroll', true).subscribe(() => {
-            if (this.state.opened && this.content && this.el) {
-                this.setState(this.refreshState());
-            }
-        })];
+            Observable.fromEvent(document, 'scroll', true).subscribe(() => {
+                if (this.state.opened && this.content && this.el) {
+                    this.setState(this.refreshState());
+                }
+            })
+        ];
     }
 
     public componentWillUnmount() {
-        (this.subscriptions || []).forEach((s) => s.unsubscribe());
+        (this.subscriptions || []).forEach(s => s.unsubscribe());
         this.subscriptions = [];
     }
 
     public close() {
-        this.setState({ opened: false });
+        this.setState({opened: false});
     }
 
     private refreshState() {
@@ -85,7 +98,11 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
         const {top, left} = anchor.getBoundingClientRect();
         const anchorHeight = anchor.offsetHeight + 2;
 
-        const newState = { left: this.state.left, top: this.state.top, opened: this.state.opened };
+        const newState = {
+            left: this.state.left,
+            top: this.state.top,
+            opened: this.state.opened
+        };
         // Set top position
         if (this.content.offsetHeight + top + anchorHeight > window.innerHeight) {
             newState.top = top - this.content.offsetHeight - 2;

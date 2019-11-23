@@ -1,8 +1,8 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { Observable, Subscription } from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
-import { Checkbox } from '../checkbox';
+import {Checkbox} from '../checkbox';
 
 export interface SelectOption {
     value: string;
@@ -29,21 +29,20 @@ export interface SelectProps {
 require('./select.scss');
 
 function normalizeOptions(options: Array<SelectOption | string>) {
-    return options.map((item) => typeof item === 'string' ? ({ value: item, title: item }) : item);
+    return options.map(item => (typeof item === 'string' ? {value: item, title: item} : item));
 }
 
 export class Select extends React.Component<SelectProps, State> {
-
     public static getDerivedStateFromProps(nextProps: SelectProps, prevState: State): Partial<State> {
         let selected: Array<string> = [];
         if (nextProps.value) {
-            selected = nextProps.value instanceof Array ? nextProps.value as Array<string> : [nextProps.value];
+            selected = nextProps.value instanceof Array ? (nextProps.value as Array<string>) : [nextProps.value];
         }
         const a = new Set(selected);
         const b = new Set(prevState.selected);
-        const isEqual = a.size === b.size && Array.from(a).every((value) => b.has(value));
+        const isEqual = a.size === b.size && Array.from(a).every(value => b.has(value));
         if (!isEqual) {
-            return { selected };
+            return {selected};
         }
 
         return null;
@@ -55,13 +54,13 @@ export class Select extends React.Component<SelectProps, State> {
 
     public constructor(props: SelectProps) {
         super(props);
-        this.state = { opened: false, search: '', selected: [], toTop: false };
+        this.state = {opened: false, search: '', selected: [], toTop: false};
     }
 
     public componentDidMount() {
         this.subscription = Observable.fromEvent(document, 'click')
             .filter((event: Event) => !this.el.contains(event.target as Node) && this.state.opened)
-            .subscribe(() => this.setState({ opened: false }));
+            .subscribe(() => this.setState({opened: false}));
     }
 
     public componentWillUnmount() {
@@ -73,27 +72,40 @@ export class Select extends React.Component<SelectProps, State> {
 
     public render() {
         let options = normalizeOptions(this.props.options);
-        const selectedOptions = options.filter((item) => this.state.selected.includes(item.value));
+        const selectedOptions = options.filter(item => this.state.selected.includes(item.value));
         if (this.state.search) {
-            options = options.filter((item) => item.title.toLocaleLowerCase().includes(this.state.search.toLocaleLowerCase()));
+            options = options.filter(item => item.title.toLocaleLowerCase().includes(this.state.search.toLocaleLowerCase()));
         }
         return (
-            <div className='select' ref={(el) => this.el = el}>
-                {!this.state.opened && <input id={this.props.id} className='select__focus-receiver' type='text' onFocus={() => this.openDropdown()}/>}
+            <div className='select' ref={el => (this.el = el)}>
+                {!this.state.opened && <input id={this.props.id} className='select__focus-receiver' type='text' onFocus={() => this.openDropdown()} />}
                 <div className='select__value' onClick={() => this.openDropdown()}>
-                    {selectedOptions.length > 0 ? selectedOptions.map((item) => item.title).join(', ') : this.props.placeholder || ''}
-                    <div className='select__value-arrow'><i className='argo-icon-expand-arrow'/></div>
+                    {selectedOptions.length > 0 ? selectedOptions.map(item => item.title).join(', ') : this.props.placeholder || ''}
+                    <div className='select__value-arrow'>
+                        <i className='argo-icon-expand-arrow' />
+                    </div>
                 </div>
-                <div className={classNames('select__options', { 'opened': this.state.opened, 'to-top': this.state.toTop })}>
-                    <input className='select__search' type='text' placeholder='Search' value={this.state.search}
-                        onChange={(event) => this.onSearchChange(event)} ref={(el) => this.searchEl = el} />
-                    {options.map((option) => (
-                        <div key={option.value}
-                                className={classNames('select__option', { selected: this.isSelected(option) })}
-                                onClick={() => this.select(option)}>
-                            {this.props.multiSelect && <Checkbox checked={this.isSelected(option)}/>} <span>
-                                {option.title}
-                            </span>
+                <div
+                    className={classNames('select__options', {
+                        'opened': this.state.opened,
+                        'to-top': this.state.toTop
+                    })}>
+                    <input
+                        className='select__search'
+                        type='text'
+                        placeholder='Search'
+                        value={this.state.search}
+                        onChange={event => this.onSearchChange(event)}
+                        ref={el => (this.searchEl = el)}
+                    />
+                    {options.map(option => (
+                        <div
+                            key={option.value}
+                            className={classNames('select__option', {
+                                selected: this.isSelected(option)
+                            })}
+                            onClick={() => this.select(option)}>
+                            {this.props.multiSelect && <Checkbox checked={this.isSelected(option)} />} <span>{option.title}</span>
                         </div>
                     ))}
                     {options.length === 0 && <div className='select__empty'>No results</div>}
@@ -107,7 +119,7 @@ export class Select extends React.Component<SelectProps, State> {
     }
 
     private onSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({ search: event.target.value });
+        this.setState({search: event.target.value});
     }
 
     private openDropdown() {
@@ -122,7 +134,7 @@ export class Select extends React.Component<SelectProps, State> {
 
             this.setState({
                 toTop: (this.el.querySelector('.select__options') as HTMLElement).offsetHeight + top - scrollWindowTop > window.innerHeight,
-                opened: true,
+                opened: true
             });
 
             setTimeout(() => this.searchEl && this.searchEl.focus(), 1000);
@@ -138,13 +150,13 @@ export class Select extends React.Component<SelectProps, State> {
             } else {
                 nextSelected.push(option.value);
             }
-            this.setState({ selected: nextSelected, opened: true });
+            this.setState({selected: nextSelected, opened: true});
             if (this.props.onMultiChange) {
-                const selectedOptions = normalizeOptions(this.props.options).filter((item) => nextSelected.includes(item.value));
+                const selectedOptions = normalizeOptions(this.props.options).filter(item => nextSelected.includes(item.value));
                 this.props.onMultiChange(selectedOptions);
             }
         } else {
-            this.setState({ selected: [option.value], opened: false, search: '' });
+            this.setState({selected: [option.value], opened: false, search: ''});
             if (this.props.onChange) {
                 this.props.onChange(option);
             }

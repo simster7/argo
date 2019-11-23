@@ -1,6 +1,6 @@
 import * as H from 'history';
-import { match} from 'react-router';
-import { NotificationsApi, PopupApi } from './components';
+import {match} from 'react-router';
+import {NotificationsApi, PopupApi} from './components';
 
 export interface AppContext {
     router: {

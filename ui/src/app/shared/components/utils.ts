@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
-import { NODE_PHASE } from '../models';
+import {Observable} from 'rxjs';
+import {NODE_PHASE} from '../models';
 
 export const Utils = {
     statusIconClasses(status: string): string {
@@ -25,7 +25,7 @@ export const Utils = {
         return classes.join(' ');
     },
 
-    shortNodeName(node: { name: string, displayName: string }): string {
+    shortNodeName(node: {name: string; displayName: string}): string {
         return node.displayName || node.name;
     },
 
@@ -33,9 +33,10 @@ export const Utils = {
         const regex = /(auto|scroll)/;
         while (el.parentNode) {
             el = el.parentNode as HTMLElement;
-            const overflow = getComputedStyle(el, null).getPropertyValue('overflow') +
-            getComputedStyle(el, null).getPropertyValue('overflow-y') +
-            getComputedStyle(el, null).getPropertyValue('overflow-x');
+            const overflow =
+                getComputedStyle(el, null).getPropertyValue('overflow') +
+                getComputedStyle(el, null).getPropertyValue('overflow-y') +
+                getComputedStyle(el, null).getPropertyValue('overflow-x');
             if (regex.test(overflow)) {
                 return el;
             }
@@ -47,11 +48,11 @@ export const Utils = {
         function easeInOutQuad(t: number, b: number, c: number, d: number) {
             t /= d / 2;
             if (t < 1) {
-                return c / 2 * t * t + b;
+                return (c / 2) * t * t + b;
             }
 
             t--;
-            return -c / 2 * ( t * ( t - 2 ) - 1) + b;
+            return (-c / 2) * (t * (t - 2) - 1) + b;
         }
         const start = element.scrollTop;
         const change = to - start;
@@ -74,5 +75,5 @@ export const Utils = {
             return observable as Observable<T>;
         }
         return Observable.from([val as T]);
-    },
+    }
 };

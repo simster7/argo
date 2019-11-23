@@ -2,13 +2,19 @@ import * as moment from 'moment';
 import * as React from 'react';
 import {Observable, Subscription} from 'rxjs';
 
-export class Ticker extends React.Component<{intervalMs?: number, disabled?: boolean, children?: ((time: moment.Moment) => React.ReactNode)}, {time: moment.Moment}> {
-
+export class Ticker extends React.Component<
+    {
+        intervalMs?: number;
+        disabled?: boolean;
+        children?: (time: moment.Moment) => React.ReactNode;
+    },
+    {time: moment.Moment}
+> {
     private subscription: Subscription;
 
-    constructor(props: {intervalMs?: number, children?: ((time: moment.Moment) => React.ReactNode)}) {
+    constructor(props: {intervalMs?: number; children?: (time: moment.Moment) => React.ReactNode}) {
         super(props);
-        this.state = { time: moment() };
+        this.state = {time: moment()};
         this.ensureSubscribed();
     }
 
@@ -28,7 +34,7 @@ export class Ticker extends React.Component<{intervalMs?: number, disabled?: boo
         if (this.props.disabled) {
             this.ensureUnsubscribed();
         } else if (!this.subscription) {
-            this.subscription = Observable.interval(this.props.intervalMs || 1000).subscribe(() => this.setState({ time: moment() }));
+            this.subscription = Observable.interval(this.props.intervalMs || 1000).subscribe(() => this.setState({time: moment()}));
         }
     }
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Observable, Subscription } from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
 const Terminal = require('xterm');
 Terminal.loadAddon('fit');
@@ -33,7 +33,7 @@ export class LogsViewer extends React.Component<LogsViewerProps> {
     public initTerminal(container: HTMLElement) {
         this.terminal = new Terminal({
             scrollback: 99999,
-            theme: 'ax',
+            theme: 'ax'
         });
 
         this.terminal.open(container);
@@ -51,7 +51,7 @@ export class LogsViewer extends React.Component<LogsViewerProps> {
     public render() {
         return (
             <div className='logs-viewer'>
-                <div className='logs-viewer__container' ref={(container) => container && this.initTerminal(container)}/>
+                <div className='logs-viewer__container' ref={container => container && this.initTerminal(container)} />
             </div>
         );
     }
@@ -68,9 +68,13 @@ export class LogsViewer extends React.Component<LogsViewerProps> {
                 this.refresh(source);
             }
         };
-        this.subscription = source.loadLogs().subscribe((log) => {
-            this.terminal.write(log.replace('\n', '\r\n'));
-        }, onLoadComplete, onLoadComplete);
+        this.subscription = source.loadLogs().subscribe(
+            log => {
+                this.terminal.write(log.replace('\n', '\r\n'));
+            },
+            onLoadComplete,
+            onLoadComplete
+        );
     }
 
     private ensureUnsubscribed() {

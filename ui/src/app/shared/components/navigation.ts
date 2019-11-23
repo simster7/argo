@@ -1,19 +1,18 @@
-import { History } from 'history';
+import {History} from 'history';
 import * as React from 'react';
 
 export interface NavigationApi {
-    goto(path: string, query?: {[name: string]: any}, options?: { event?: React.MouseEvent, replace?: boolean }): void;
+    goto(path: string, query?: {[name: string]: any}, options?: {event?: React.MouseEvent; replace?: boolean}): void;
 }
 
 export class NavigationManager implements NavigationApi {
-
     private history: History;
 
     constructor(history: History) {
         this.history = history;
     }
 
-    public goto(path: string, query: {[name: string]: any} = {}, options?: { event?: React.MouseEvent, replace?: boolean }): void {
+    public goto(path: string, query: {[name: string]: any} = {}, options?: {event?: React.MouseEvent; replace?: boolean}): void {
         if (path.startsWith('.')) {
             path = this.history.location.pathname + path.slice(1);
         }

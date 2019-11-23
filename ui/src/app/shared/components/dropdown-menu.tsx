@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DropDown } from './dropdown/dropdown';
+import {DropDown} from './dropdown/dropdown';
 
 export interface MenuItem {
     title: string | React.ReactElement;
@@ -13,17 +13,17 @@ export interface DropDownMenuProps {
 }
 
 export class DropDownMenu extends React.PureComponent<DropDownMenuProps> {
-
     private dropdown: DropDown;
 
     public render() {
         return (
-            <DropDown anchor={this.props.anchor} isMenu={true} ref={(dropdown: any) => this.dropdown = dropdown}>
+            <DropDown anchor={this.props.anchor} isMenu={true} ref={(dropdown: any) => (this.dropdown = dropdown)}>
                 <ul>
-                    {this.props.items.map((item, i) => <li
-                        onClick={(event) => this.onItemClick(item, event)} key={i}>
-                        {item.iconClassName && <i className={item.iconClassName}/>} {item.title}
-                        </li>)}
+                    {this.props.items.map((item, i) => (
+                        <li onClick={event => this.onItemClick(item, event)} key={i}>
+                            {item.iconClassName && <i className={item.iconClassName} />} {item.title}
+                        </li>
+                    ))}
                 </ul>
             </DropDown>
         );
