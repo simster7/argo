@@ -2,3 +2,5 @@
 # a user's workspace, and are only building off of what is locked by dep.
 vendor
 dist
+ui/node_modules
+
