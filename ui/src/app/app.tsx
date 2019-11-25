@@ -1,13 +1,11 @@
-import {createHashHistory} from 'history';
+import {createBrowserHistory} from 'history';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import {Redirect, Route, RouteComponentProps, Router, Switch} from 'react-router';
 
 import {uiUrl} from './shared/base';
-import {Layout, Notifications, NotificationsManager, Popup, PopupManager, PopupProps} from './shared/components';
-import {AppContext} from './shared/context';
-
-export const history = createHashHistory();
+import {Layout, NavigationManager, Notifications, NotificationsManager, Popup, PopupManager, PopupProps} from './shared/components';
+import {AppContext, ContextApis, Provider} from './shared/context';
 
 import help from './help';
 import workflows from './workflows';
@@ -21,6 +19,10 @@ const routes: {
     [workflowsUrl]: {component: workflows.component},
     [helpUrl]: {component: help.component}
 };
+
+const bases = document.getElementsByTagName('base');
+const base = bases.length > 0 ? bases[0].getAttribute('href') || '/' : '/';
+export const history = createBrowserHistory({basename: base});
 
 const navItems = [
     {
@@ -43,12 +45,14 @@ export class App extends React.Component<{}, {popupProps: PopupProps}> {
 
     private popupManager: PopupManager;
     private notificationsManager: NotificationsManager;
+    private navigationManager: NavigationManager;
 
     constructor(props: {}) {
         super(props);
         this.state = {popupProps: null};
         this.popupManager = new PopupManager();
         this.notificationsManager = new NotificationsManager();
+        this.navigationManager = new NavigationManager(history);
     }
 
     public componentDidMount() {
@@ -56,8 +60,14 @@ export class App extends React.Component<{}, {popupProps: PopupProps}> {
     }
 
     public render() {
+        const providerContext: ContextApis = {
+            notifications: this.notificationsManager,
+            popup: this.popupManager,
+            navigation: this.navigationManager,
+            history
+        };
         return (
-            <div>
+            <Provider value={providerContext}>
                 {this.state.popupProps && <Popup {...this.state.popupProps} />}
                 <Router history={history}>
                     <Switch>
@@ -86,7 +96,7 @@ export class App extends React.Component<{}, {popupProps: PopupProps}> {
                         </Layout>
                     </Switch>
                 </Router>
-            </div>
+            </Provider>
         );
     }
 
