@@ -26,17 +26,18 @@ import (
 
 // Controller is a controller for cron workflows
 type Controller struct {
-	namespace        string
-	managedNamespace string
-	instanceId       string
-	cron             *cron.Cron
-	nameEntryIDMap   map[string]cron.EntryID
-	wfClientset      versioned.Interface
-	wfInformer       cache.SharedIndexInformer
-	wfQueue          workqueue.RateLimitingInterface
-	cronWfInformer   extv1alpha1.CronWorkflowInformer
-	cronWfQueue      workqueue.RateLimitingInterface
-	restConfig       *rest.Config
+	namespace          string
+	managedNamespace   string
+	instanceId         string
+	cron               *cron.Cron
+	nameEntryIDMap     map[string]cron.EntryID
+	wfClientset        versioned.Interface
+	wfInformer         cache.SharedIndexInformer
+	wfQueue            workqueue.RateLimitingInterface
+	cronWfInformer     extv1alpha1.CronWorkflowInformer
+	cronWfQueue        workqueue.RateLimitingInterface
+	restConfig         *rest.Config
+	deletedObjectCache map[string]interface{}
 }
 
 const (
@@ -53,15 +54,16 @@ func NewCronController(
 	instanceId string,
 ) *Controller {
 	return &Controller{
-		wfClientset:      wfclientset,
-		namespace:        namespace,
-		managedNamespace: managedNamespace,
-		instanceId:       instanceId,
-		cron:             cron.New(),
-		restConfig:       restConfig,
-		nameEntryIDMap:   make(map[string]cron.EntryID),
-		wfQueue:          workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
-		cronWfQueue:      workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
+		wfClientset:        wfclientset,
+		namespace:          namespace,
+		managedNamespace:   managedNamespace,
+		instanceId:         instanceId,
+		cron:               cron.New(),
+		restConfig:         restConfig,
+		nameEntryIDMap:     make(map[string]cron.EntryID),
+		wfQueue:            workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
+		cronWfQueue:        workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
+		deletedObjectCache: make(map[string]interface{}),
 	}
 }
 
@@ -187,6 +189,17 @@ func (cc *Controller) processNextWorkflowItem() bool {
 		return true
 	}
 
+	// If the workflow was deleted, recover the workflow object from the cache
+	if !wfExists {
+		if cachedObj, ok := cc.deletedObjectCache[key.(string)]; ok {
+			obj = cachedObj
+			delete(cc.deletedObjectCache, key.(string))
+		} else {
+			log.Warnf("Unable to remove deleted workflow '%s' from active workflows", key)
+			return true
+		}
+	}
+
 	// The workflow informer receives unstructured objects to deal with the possibility of invalid
 	// workflow manifests that are unable to unmarshal to workflow objects
 	un, ok := obj.(*unstructured.Unstructured)
@@ -271,6 +284,9 @@ func (cc *Controller) addWorkflowInformerHandler() {
 			DeleteFunc: func(obj interface{}) {
 				key, err := cache.MetaNamespaceKeyFunc(obj)
 				if err == nil {
+					// This is the only chance we get to see the wf that was deleted. Since we process deleted objects
+					// async, we save it so we can use it when we do.
+					cc.deletedObjectCache[key] = obj
 					cc.wfQueue.Add(key)
 				}
 			},
