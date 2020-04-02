@@ -12,8 +12,8 @@ const (
 	ResourceScopeClusterWorkflowTemplate ResourceScope = "ClusterWorkflowTemplate"
 )
 
-// TemplateGetter is an interface to get templates.
-type TemplateGetter interface {
+// TemplateHolder is an object that holds templates, such as a Workflow, WorkflowTempalte, or ClusterWorkflowTemplate
+type TemplateHolder interface {
 	GetNamespace() string
 	GetName() string
 	GroupVersionKind() schema.GroupVersionKind
@@ -22,14 +22,8 @@ type TemplateGetter interface {
 	GetAllTemplates() []Template
 }
 
-// TemplateCaller is an object that can call other templates
+// TemplateCaller is an object that can call other templates, such as a Workflow, DAGTask, or WorkflowStep
 type TemplateCaller interface {
 	GetTemplateName() string
 	GetTemplateRef() *TemplateRef
-}
-
-// TemplateStorage is an interface of template storage getter and setter.
-type TemplateStorage interface {
-	GetStoredTemplate(scope ResourceScope, resourceName string, caller TemplateCaller) *Template
-	SetStoredTemplate(scope ResourceScope, resourceName string, caller TemplateCaller, tmpl *Template) (bool, error)
 }

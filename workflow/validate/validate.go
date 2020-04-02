@@ -199,7 +199,7 @@ func ValidateWorkflow(wftmplGetter templateresolution.WorkflowTemplateNamespaced
 }
 
 // ValidateWorkflow accepts a workflow template and performs validation against it.
-func ValidateWorkflowTemplate(wftmplGetter templateresolution.WorkflowTemplateNamespacedGetter, cwftmplGetter templateresolution.ClusterWorkflowTemplateGetter, wftmpl wfv1.TemplateGetter) error {
+func ValidateWorkflowTemplate(wftmplGetter templateresolution.WorkflowTemplateNamespacedGetter, cwftmplGetter templateresolution.ClusterWorkflowTemplateGetter, wftmpl wfv1.TemplateHolder) error {
 	ctx := newTemplateValidationCtx(nil, ValidateOpts{})
 	tmplCtx := templateresolution.NewContext(wftmplGetter, cwftmplGetter, wftmpl, nil)
 
@@ -396,7 +396,7 @@ func (ctx *templateValidationCtx) validateTemplateHolder(tmplHolder wfv1.Templat
 		}
 	}
 
-	tmplCtx, resolvedTmpl, err := tmplCtx.ResolveTemplate(tmplHolder)
+	tmplCtx, resolvedTmpl, _, err := tmplCtx.ResolveTemplate(tmplHolder)
 	if err != nil {
 		if argoerr, ok := err.(errors.ArgoError); ok && argoerr.Code() == errors.CodeNotFound {
 			if tmplRef != nil {

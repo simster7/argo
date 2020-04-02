@@ -1329,9 +1329,13 @@ func (woc *wfOperationCtx) executeTemplate(nodeName string, orgTmpl wfv1.Templat
 	node := woc.getNodeByName(nodeName)
 
 	// Set templateScope from which the template resolution starts.
-	newTmplCtx, resolvedTmpl, err := tmplCtx.ResolveTemplate(orgTmpl)
+	newTmplCtx, resolvedTmpl, templateStored, err := tmplCtx.ResolveTemplate(orgTmpl)
 	if err != nil {
 		return woc.initializeNodeOrMarkError(node, nodeName, wfv1.NodeTypeSkipped, orgTmpl, opts.boundaryID, err), err
+	}
+	// If a template was stored during the resolution, persist the changes
+	if templateStored {
+		woc.updated = true
 	}
 
 	if node != nil {
@@ -1736,10 +1740,15 @@ func (woc *wfOperationCtx) checkParallelism(tmpl *wfv1.Template, node *wfv1.Node
 			if err != nil {
 				return err
 			}
-			_, boundaryTemplate, err := tmplCtx.ResolveTemplate(&boundaryNode)
+			_, boundaryTemplate, templateStored, err := tmplCtx.ResolveTemplate(&boundaryNode)
 			if err != nil {
 				return err
 			}
+			// If a template was stored during the resolution, persist the changes
+			if templateStored {
+				woc.updated = true
+			}
+
 			if boundaryTemplate != nil && boundaryTemplate.Parallelism != nil {
 				activeSiblings := woc.countActiveChildren(boundaryID)
 				woc.log.Debugf("counted %d/%d active children in boundary %s", activeSiblings, *boundaryTemplate.Parallelism, boundaryID)
@@ -1897,10 +1906,15 @@ func (woc *wfOperationCtx) executeScript(nodeName string, tmpl *wfv1.Template, o
 		if err != nil {
 			return node, err
 		}
-		_, parentTemplate, err := tmplCtx.ResolveTemplate(&boundaryNode)
+		_, parentTemplate, templateStored, err := tmplCtx.ResolveTemplate(&boundaryNode)
 		if err != nil {
 			return node, err
 		}
+		// If a template was stored during the resolution, persist the changes
+		if templateStored {
+			woc.updated = true
+		}
+
 		name := getStepOrDAGTaskName(nodeName)
 		includeScriptOutput = hasOutputResultRef(name, parentTemplate)
 	}
@@ -2312,20 +2326,6 @@ func expandSequence(seq *wfv1.Sequence) ([]wfv1.Item, error) {
 		}
 	}
 	return items, nil
-}
-
-// GetStoredTemplate retrieves a template from stored templates of the workflow.
-func (woc *wfOperationCtx) GetStoredTemplate(scope wfv1.ResourceScope, resourceName string, holder wfv1.TemplateCaller) *wfv1.Template {
-	return woc.wf.GetStoredTemplate(scope, resourceName, holder)
-}
-
-// SetStoredTemplate stores a new template in stored templates of the workflow.
-func (woc *wfOperationCtx) SetStoredTemplate(scope wfv1.ResourceScope, resourceName string, holder wfv1.TemplateCaller, tmpl *wfv1.Template) (bool, error) {
-	stored, err := woc.wf.SetStoredTemplate(scope, resourceName, holder, tmpl)
-	if stored {
-		woc.updated = true
-	}
-	return stored, err
 }
 
 func (woc *wfOperationCtx) substituteParamsInVolumes(params map[string]string) error {

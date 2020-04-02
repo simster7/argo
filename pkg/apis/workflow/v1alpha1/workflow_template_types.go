@@ -38,7 +38,7 @@ type WorkflowTemplateList struct {
 	Items           WorkflowTemplates `json:"items" protobuf:"bytes,2,rep,name=items"`
 }
 
-var _ TemplateGetter = &WorkflowTemplate{}
+var _ TemplateHolder = &WorkflowTemplate{}
 
 // WorkflowTemplateSpec is a spec of WorkflowTemplate.
 type WorkflowTemplateSpec struct {

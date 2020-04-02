@@ -191,7 +191,8 @@ func (d *dagContext) hasMoreRetries(node *wfv1.NodeStatus) bool {
 	if !ok {
 		return false
 	}
-	_, tmpl, err := d.tmplCtx.ResolveTemplate(&childNode)
+	// TODO: Look here
+	_, tmpl, _, err := d.tmplCtx.ResolveTemplate(&childNode)
 	if err != nil {
 		return false
 	}
@@ -462,10 +463,15 @@ func (woc *wfOperationCtx) buildLocalScopeFromTask(dagCtx *dagContext, task *wfv
 					ancestorNodes = append(ancestorNodes, node)
 				}
 			}
-			_, tmpl, err := dagCtx.tmplCtx.ResolveTemplate(ancestorNode)
+			_, tmpl, templateStored, err := dagCtx.tmplCtx.ResolveTemplate(ancestorNode)
 			if err != nil {
 				return nil, errors.InternalWrapError(err)
 			}
+			// If a template was stored during the resolution, persist the changes
+			if templateStored {
+				woc.updated = true
+			}
+
 			err = woc.processAggregateNodeOutputs(tmpl, &scope, prefix, ancestorNodes)
 			if err != nil {
 				return nil, errors.InternalWrapError(err)

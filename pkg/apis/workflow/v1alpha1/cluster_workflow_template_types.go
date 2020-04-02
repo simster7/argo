@@ -39,7 +39,7 @@ type ClusterWorkflowTemplateList struct {
 	Items           ClusterWorkflowTemplates `json:"items" protobuf:"bytes,2,rep,name=items"`
 }
 
-var _ TemplateGetter = &ClusterWorkflowTemplate{}
+var _ TemplateHolder = &ClusterWorkflowTemplate{}
 
 // GetTemplateByName retrieves a defined template by its name
 func (cwftmpl *ClusterWorkflowTemplate) GetTemplateByName(name string) *Template {

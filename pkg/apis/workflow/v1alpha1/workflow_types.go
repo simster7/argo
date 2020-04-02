@@ -107,7 +107,7 @@ type WorkflowList struct {
 	Items           Workflows `json:"items" protobuf:"bytes,2,opt,name=items"`
 }
 
-var _ TemplateGetter = &Workflow{}
+var _ TemplateHolder = &Workflow{}
 var _ TemplateStorage = &Workflow{}
 
 // TTLStrategy is the strategy for the time to live depending on if the workflow succeded or failed
