@@ -3,6 +3,8 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
+	"io/ioutil"
 	"strings"
 
 	"github.com/valyala/fasttemplate"
@@ -222,10 +224,13 @@ func (d *dagContext) hasMoreRetries(node *wfv1.NodeStatus) bool {
 	if err != nil {
 		return false
 	}
-	if tmpl.RetryStrategy != nil && tmpl.RetryStrategy.Limit != nil && int32(len(node.Children)) > *tmpl.RetryStrategy.Limit {
-		return false
-	}
-	return true
+
+	nullLogger := logrus.New()
+	nullLogger.SetOutput(ioutil.Discard)
+	woc := wfOperationCtx{wf: d.wf.DeepCopy(), log: logrus.NewEntry(nullLogger)}
+	testNode := woc.wf.Status.Nodes[node.ID]
+	processedTestNode, _, _ := woc.processNodeRetries(&testNode, *tmpl.RetryStrategy)
+	return !processedTestNode.Completed()
 }
 
 func (woc *wfOperationCtx) executeDAG(nodeName string, tmplCtx *templateresolution.Context, templateScope string, tmpl *wfv1.Template, orgTmpl wfv1.TemplateReferenceHolder, opts *executeTemplateOpts) (*wfv1.NodeStatus, error) {

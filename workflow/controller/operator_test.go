@@ -140,7 +140,7 @@ func TestProcessNodesWithRetries(t *testing.T) {
 	assert.Equal(t, node.Phase, wfv1.NodeRunning)
 
 	// Ensure there are no child nodes yet.
-	lastChild, err := woc.getLastChildNode(node)
+	lastChild, err := woc.getChildNodeIndex(node, -1)
 	assert.NoError(t, err)
 	assert.Nil(t, lastChild)
 
@@ -152,7 +152,7 @@ func TestProcessNodesWithRetries(t *testing.T) {
 	}
 
 	n := woc.getNodeByName(nodeName)
-	lastChild, err = woc.getLastChildNode(n)
+	lastChild, err = woc.getChildNodeIndex(n, -1)
 	assert.NoError(t, err)
 	assert.NotNil(t, lastChild)
 
@@ -213,7 +213,7 @@ func TestProcessNodesWithRetriesOnErrors(t *testing.T) {
 	assert.Equal(t, node.Phase, wfv1.NodeRunning)
 
 	// Ensure there are no child nodes yet.
-	lastChild, err := woc.getLastChildNode(node)
+	lastChild, err := woc.getChildNodeIndex(node, -1)
 	assert.Nil(t, err)
 	assert.Nil(t, lastChild)
 
@@ -225,7 +225,7 @@ func TestProcessNodesWithRetriesOnErrors(t *testing.T) {
 	}
 
 	n := woc.getNodeByName(nodeName)
-	lastChild, err = woc.getLastChildNode(n)
+	lastChild, err = woc.getChildNodeIndex(n, -1)
 	assert.Nil(t, err)
 	assert.NotNil(t, lastChild)
 
@@ -291,7 +291,7 @@ func TestProcessNodesWithRetriesWithBackoff(t *testing.T) {
 	assert.Equal(t, node.Phase, wfv1.NodeRunning)
 
 	// Ensure there are no child nodes yet.
-	lastChild, err := woc.getLastChildNode(node)
+	lastChild, err := woc.getChildNodeIndex(node, -1)
 	assert.Nil(t, err)
 	assert.Nil(t, lastChild)
 
@@ -299,7 +299,7 @@ func TestProcessNodesWithRetriesWithBackoff(t *testing.T) {
 	woc.addChildNode(nodeName, "child-node-1")
 
 	n := woc.getNodeByName(nodeName)
-	lastChild, err = woc.getLastChildNode(n)
+	lastChild, err = woc.getChildNodeIndex(n, -1)
 	assert.Nil(t, err)
 	assert.NotNil(t, lastChild)
 
@@ -343,7 +343,7 @@ func TestProcessNodesNoRetryWithError(t *testing.T) {
 	assert.Equal(t, node.Phase, wfv1.NodeRunning)
 
 	// Ensure there are no child nodes yet.
-	lastChild, err := woc.getLastChildNode(node)
+	lastChild, err := woc.getChildNodeIndex(node, -1)
 	assert.Nil(t, err)
 	assert.Nil(t, lastChild)
 
@@ -355,7 +355,7 @@ func TestProcessNodesNoRetryWithError(t *testing.T) {
 	}
 
 	n := woc.getNodeByName(nodeName)
-	lastChild, err = woc.getLastChildNode(n)
+	lastChild, err = woc.getChildNodeIndex(n, -1)
 	assert.Nil(t, err)
 	assert.NotNil(t, lastChild)
 
@@ -516,12 +516,12 @@ func TestBackoffMessage(t *testing.T) {
 	retryNode := woc.getNodeByName("retry-backoff-s69z6")
 
 	// Simulate backoff of 4 secods
-	firstNode, err := woc.getFirstChildNode(retryNode)
+	firstNode, err := woc.getChildNodeIndex(retryNode, 0)
 	assert.NoError(t, err)
 	firstNode.StartedAt = metav1.Time{Time: time.Now().Add(-8 * time.Second)}
 	firstNode.FinishedAt = metav1.Time{Time: time.Now().Add(-6 * time.Second)}
 	woc.wf.Status.Nodes[firstNode.ID] = *firstNode
-	lastNode, err := woc.getLastChildNode(retryNode)
+	lastNode, err := woc.getChildNodeIndex(retryNode, -1)
 	assert.NoError(t, err)
 	lastNode.StartedAt = metav1.Time{Time: time.Now().Add(-3 * time.Second)}
 	lastNode.FinishedAt = metav1.Time{Time: time.Now().Add(-1 * time.Second)}
