@@ -249,3 +249,61 @@ func TestGetTaskAncestryForGlobalArtifacts(t *testing.T) {
 		assert.Equal(t, tt.want, res)
 	}
 }
+
+func TestTopologicalSort(t *testing.T) {
+	testTasks := []*wfv1.DAGTask{
+		{
+			Name:         "task1",
+		},
+		{
+			Name:         "task2",
+			Dependencies: []string{"task1"},
+		},
+		{
+			Name:         "task3",
+			Dependencies: []string{"task1"},
+		},
+		{
+			Name:         "task4",
+			Dependencies: []string{"task2", "task3"},
+		},
+	}
+
+	ctx := &testContext{
+		testTasks: testTasks,
+	}
+
+	assert.Equal(t, [][]string{{"task1"}, {"task2", "task3"}, {"task4"}}, TopologicalSort([]string{"task4"}, ctx))
+
+	testTasks = []*wfv1.DAGTask{
+		{
+			Name:         "A",
+		},
+		{
+			Name:         "B",
+			Dependencies: []string{"A"},
+		},
+		{
+			Name:         "C",
+			Dependencies: []string{"B"},
+		},
+		{
+			Name:         "D",
+			Dependencies: []string{"A"},
+		},
+		{
+			Name:         "E",
+			Dependencies: []string{"D"},
+		},
+		{
+			Name:         "F",
+			Dependencies: []string{"C", "E"},
+		},
+	}
+
+	ctx = &testContext{
+		testTasks: testTasks,
+	}
+
+	assert.Equal(t, [][]string{{"A"}, {"B", "D"}, {"C", "E"}, {"F"}}, TopologicalSort([]string{"F"}, ctx))
+}

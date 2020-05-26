@@ -78,6 +78,41 @@ func GetTaskDependencies(task *wfv1.DAGTask, ctx DagContext) ([]string, string) 
 	return out, depends
 }
 
+func TopologicalSort(leafTasks []string, ctx DagContext) [][]string {
+	maxLevel := 0
+	levels := make(map[string]int)
+
+	var visit func(string, int)
+	visit = func(taskName string, level int) {
+		if level > maxLevel {
+			maxLevel = level
+		}
+
+		if prevLevel, visited := levels[taskName]; visited {
+			if level > prevLevel {
+				levels[taskName] = level
+			}
+			return
+		}
+
+		for _, task := range ctx.GetTaskDependencies(taskName) {
+			visit(task, level+1)
+		}
+
+		levels[taskName] = level
+	}
+
+	for _, taskName := range leafTasks {
+		visit(taskName, 0)
+	}
+
+	topologicalSort := make([][]string, maxLevel+1)
+	for taskName, level := range levels {
+		topologicalSort[maxLevel-level] = append(topologicalSort[maxLevel-level], taskName)
+	}
+	return topologicalSort
+}
+
 func ValidateTaskResults(dagTask *wfv1.DAGTask) error {
 	// If a user didn't specify a depends expression, there are no task results to validate
 	if dagTask.Depends == "" {
