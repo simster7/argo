@@ -510,6 +510,11 @@ type Template struct {
 var _ TemplateReferenceHolder = &Template{}
 
 // DEPRECATED: Templates should not be used as TemplateReferenceHolder
+func (tmpl *Template) GetTemplateReferenceHolderName() string {
+	return tmpl.Name
+}
+
+// DEPRECATED: Templates should not be used as TemplateReferenceHolder
 func (tmpl *Template) GetTemplateName() string {
 	if tmpl.Template != "" {
 		return tmpl.Template
@@ -808,6 +813,10 @@ type WorkflowStep struct {
 }
 
 var _ TemplateReferenceHolder = &WorkflowStep{}
+
+func (step *WorkflowStep) GetTemplateReferenceHolderName() string {
+	return step.Name
+}
 
 func (step *WorkflowStep) GetTemplateName() string {
 	return step.Template
@@ -1354,6 +1363,10 @@ func (n NodeStatus) GetTemplateScope() (ResourceScope, string) {
 
 var _ TemplateReferenceHolder = &NodeStatus{}
 
+func (n *NodeStatus) GetTemplateReferenceHolderName() string {
+	return n.Name
+}
+
 func (n *NodeStatus) GetTemplateName() string {
 	return n.TemplateName
 }
@@ -1735,6 +1748,10 @@ type DAGTask struct {
 }
 
 var _ TemplateReferenceHolder = &DAGTask{}
+
+func (t *DAGTask) GetTemplateReferenceHolderName() string {
+	return t.Name
+}
 
 func (t *DAGTask) GetTemplateName() string {
 	return t.Template

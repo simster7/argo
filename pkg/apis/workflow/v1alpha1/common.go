@@ -29,6 +29,7 @@ type WorkflowSpecHolder interface {
 
 // TemplateReferenceHolder is an object that holds a reference to other templates; e.g. WorkflowStep, DAGTask, and NodeStatus
 type TemplateReferenceHolder interface {
+	GetTemplateReferenceHolderName() string
 	GetTemplateName() string
 	GetTemplateRef() *TemplateRef
 }

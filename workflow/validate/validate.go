@@ -479,6 +479,10 @@ func (ctx *templateValidationCtx) validateTemplateHolder(tmplHolder wfv1.Templat
 	} else if tmplName != "" {
 		_, err := tmplCtx.GetTemplateByName(tmplName)
 		if err != nil {
+			if placeholderGenerator.IsPlaceholder(tmplName) {
+				logrus.Warnf("Template reference in Step/Task '%s' is a parameter and won't be validated until runtime", tmplHolder.GetTemplateReferenceHolderName())
+				return nil, nil
+			}
 			if argoerr, ok := err.(errors.ArgoError); ok && argoerr.Code() == errors.CodeNotFound {
 				return nil, errors.Errorf(errors.CodeBadRequest, "template name '%s' undefined", tmplName)
 			}
@@ -779,7 +783,7 @@ func (ctx *templateValidationCtx) validateSteps(scope map[string]interface{}, tm
 			stepNames[step.Name] = true
 			prefix := fmt.Sprintf("steps.%s", step.Name)
 			scope[fmt.Sprintf("%s.status", prefix)] = true
-			err := addItemsToScope(prefix, step.WithItems, step.WithParam, step.WithSequence, scope)
+			err := addItemsToScope(step.WithItems, step.WithParam, step.WithSequence, scope)
 			if err != nil {
 				return errors.Errorf(errors.CodeBadRequest, "templates.%s.steps[%d].%s %s", tmpl.Name, i, step.Name, err.Error())
 			}
@@ -818,7 +822,7 @@ func (ctx *templateValidationCtx) validateSteps(scope map[string]interface{}, tm
 	return nil
 }
 
-func addItemsToScope(prefix string, withItems []wfv1.Item, withParam string, withSequence *wfv1.Sequence, scope map[string]interface{}) error {
+func addItemsToScope(withItems []wfv1.Item, withParam string, withSequence *wfv1.Sequence, scope map[string]interface{}) error {
 	defined := 0
 	if len(withItems) > 0 {
 		defined++
@@ -896,7 +900,7 @@ func (ctx *templateValidationCtx) addOutputsToScope(tmpl *wfv1.Template, prefix 
 	}
 	if aggregate {
 		switch tmpl.GetType() {
-		// Not that we don't also include TemplateTypeContainer here, even though it uses `outputs.result` it uses
+		// Note that we don't also include TemplateTypeContainer here, even though it uses `outputs.result` it uses
 		// `outputs.parameters` as its aggregator.
 		case wfv1.TemplateTypeScript:
 			scope[fmt.Sprintf("%s.outputs.result", prefix)] = true
@@ -1229,7 +1233,7 @@ func (ctx *templateValidationCtx) validateDAG(scope map[string]interface{}, tmpl
 			aggregate := len(ancestorTask.WithItems) > 0 || ancestorTask.WithParam != ""
 			ctx.addOutputsToScope(resolvedTmpl, ancestorPrefix, taskScope, aggregate, true)
 		}
-		err = addItemsToScope(prefix, task.WithItems, task.WithParam, task.WithSequence, taskScope)
+		err = addItemsToScope(task.WithItems, task.WithParam, task.WithSequence, taskScope)
 		if err != nil {
 			return errors.Errorf(errors.CodeBadRequest, "templates.%s.tasks.%s %s", tmpl.Name, task.Name, err.Error())
 		}
