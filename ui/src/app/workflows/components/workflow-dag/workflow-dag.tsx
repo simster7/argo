@@ -319,7 +319,7 @@ export class WorkflowDag extends React.Component<WorkflowDagProps, WorkflowDagRe
                 );
             })
             .reduce((a, b) => a.concat(b));
-        const nodes = Object.values(this.props.nodes)
+        let nodes = Object.values(this.props.nodes)
             .filter(node => !!node)
             .filter(node => node.phase !== NODE_PHASE.OMITTED)
             .filter(node => !collapsedNodes.has(node.id))
@@ -328,6 +328,7 @@ export class WorkflowDag extends React.Component<WorkflowDagProps, WorkflowDagRe
         if (onExitHandlerNodeId) {
             this.getOutboundNodes(this.props.workflowName).forEach(v => edges.push({v, w: onExitHandlerNodeId}));
         }
+        nodes = nodes.reverse();
         nodes.push(...nodesToAdd);
         return {nodes, edges};
     }
