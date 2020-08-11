@@ -2145,18 +2145,31 @@ type Counter struct {
 	Value string `json:"value" protobuf:"bytes,1,opt,name=value"`
 }
 
-// Memoization
+// Memoization is a configuration to cache the outputs of a step
 type Memoize struct {
+	// Key is the key to use to cache
 	Key   string `json:"key" protobuf:"bytes,1,opt,name=key"`
+	// Cache is the type of cache to be used for memoization
 	Cache *Cache `json:"cache" protobuf:"bytes,2,opt,name=cache"`
+	// ExpirationPolicy is expiration policy of this entry
+	ExpirationPolicy *ExpirationPolicy `json:"expirationPolicy"`
 }
 
+// MemoizationStatus is the status of a cached step
 type MemoizationStatus struct {
 	Hit       bool   `json:"hit" protobuf:"bytes,1,opt,name=hit"`
 	Key       string `json:"key" protobuf:"bytes,2,opt,name=key"`
 	CacheName string `json:"cacheName" protobuf:"bytes,3,opt,name=cacheName"`
 }
 
+// Cache is the type of cache to be used for memoization
 type Cache struct {
+	// ConfigMap is a ConfigMap cache
 	ConfigMap *apiv1.ConfigMapKeySelector `json:"configMap" protobuf:"bytes,1,opt,name=configMap"`
+}
+
+// ExpirationPolicy is expiration policy of a cache entry
+type ExpirationPolicy struct {
+	// TTL is a Duration that determines when the entry is valid
+	TTL string `json:"ttl"`
 }
