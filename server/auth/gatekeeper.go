@@ -21,7 +21,6 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"
-	"github.com/argoproj/argo/server/auth/serviceaccount"
 	"github.com/argoproj/argo/server/auth/sso"
 	"github.com/argoproj/argo/server/auth/types"
 	"github.com/argoproj/argo/util/kubeconfig"
@@ -127,44 +126,47 @@ func getAuthHeader(md metadata.MD) string {
 }
 
 func (s gatekeeper) getClients(ctx context.Context) (versioned.Interface, kubernetes.Interface, *types.Claims, error) {
-	md, _ := metadata.FromIncomingContext(ctx)
-	authorization := getAuthHeader(md)
-	mode, err := GetMode(authorization)
-	if err != nil {
-		return nil, nil, nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-	if !s.Modes[mode] {
-		return nil, nil, nil, status.Errorf(codes.Unauthenticated, "client auth-mode is %v, but that mode is disabled", mode)
-	}
-	switch mode {
-	case Client:
-		restConfig, wfClient, kubeClient, err := s.clientForAuthorization(authorization)
-		if err != nil {
-			return nil, nil, nil, status.Error(codes.Unauthenticated, err.Error())
-		}
-		claims, _ := serviceaccount.ClaimSetFor(restConfig)
-		return wfClient, kubeClient, claims, nil
-	case Server:
-		claims, _ := serviceaccount.ClaimSetFor(s.restConfig)
-		return s.wfClient, s.kubeClient, claims, nil
-	case SSO:
-		claims, err := s.ssoIf.Authorize(authorization)
-		if err != nil {
-			return nil, nil, nil, status.Error(codes.Unauthenticated, err.Error())
-		}
-		if s.ssoIf.IsRBACEnabled() {
-			v, k, err := s.rbacAuthorization(claims)
-			if err != nil {
-				log.WithError(err).Error("failed to perform RBAC authorization")
-				return nil, nil, nil, status.Error(codes.PermissionDenied, "not allowed")
-			}
-			return v, k, claims, nil
-		} else {
-			return s.wfClient, s.kubeClient, claims, nil
-		}
-	default:
-		panic("this should never happen")
-	}
+
+	return nil, nil, nil, status.Errorf(codes.Unauthenticated, "intentional unath")
+	//
+	//md, _ := metadata.FromIncomingContext(ctx)
+	//authorization := getAuthHeader(md)
+	//mode, err := GetMode(authorization)
+	//if err != nil {
+	//	return nil, nil, nil, status.Error(codes.InvalidArgument, err.Error())
+	//}
+	//if !s.Modes[mode] {
+	//	return nil, nil, nil, status.Errorf(codes.Unauthenticated, "client auth-mode is %v, but that mode is disabled", mode)
+	//}
+	//switch mode {
+	//case Client:
+	//	restConfig, wfClient, kubeClient, err := s.clientForAuthorization(authorization)
+	//	if err != nil {
+	//		return nil, nil, nil, status.Error(codes.Unauthenticated, err.Error())
+	//	}
+	//	claims, _ := serviceaccount.ClaimSetFor(restConfig)
+	//	return wfClient, kubeClient, claims, nil
+	//case Server:
+	//	claims, _ := serviceaccount.ClaimSetFor(s.restConfig)
+	//	return s.wfClient, s.kubeClient, claims, nil
+	//case SSO:
+	//	claims, err := s.ssoIf.Authorize(authorization)
+	//	if err != nil {
+	//		return nil, nil, nil, status.Error(codes.Unauthenticated, err.Error())
+	//	}
+	//	if s.ssoIf.IsRBACEnabled() {
+	//		v, k, err := s.rbacAuthorization(claims)
+	//		if err != nil {
+	//			log.WithError(err).Error("failed to perform RBAC authorization")
+	//			return nil, nil, nil, status.Error(codes.PermissionDenied, "not allowed")
+	//		}
+	//		return v, k, claims, nil
+	//	} else {
+	//		return s.wfClient, s.kubeClient, claims, nil
+	//	}
+	//default:
+	//	panic("this should never happen")
+	//}
 }
 
 func (s *gatekeeper) rbacAuthorization(claims *types.Claims) (versioned.Interface, kubernetes.Interface, error) {

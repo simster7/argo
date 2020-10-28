@@ -11,7 +11,8 @@ const auth = (req: SuperAgentRequest) => {
 
 const handle = (err: any) => {
     // check URL to prevent redirect loop
-    if (err.status === 401 && !document.location.href.endsWith('login')) {
+    if (err.status === 401 && !document.location.href.includes('login')) {
+        document.cookie = 'redirect=' + document.location.href + ';';
         document.location.href = uiUrl('login');
     }
 };
