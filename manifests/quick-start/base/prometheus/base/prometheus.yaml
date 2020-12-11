@@ -32,6 +32,6 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: prometheus-config-cm
+            name: prometheus-config
 
 
