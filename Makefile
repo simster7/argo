@@ -361,6 +361,7 @@ manifests/install.yaml: $(CRDS) /usr/local/bin/kustomize
 	kustomize build --load_restrictor=none manifests/quick-start/minimal | ./hack/auto-gen-msg.sh > manifests/quick-start-minimal.yaml
 	kustomize build --load_restrictor=none manifests/quick-start/mysql | ./hack/auto-gen-msg.sh > manifests/quick-start-mysql.yaml
 	kustomize build --load_restrictor=none manifests/quick-start/postgres | ./hack/auto-gen-msg.sh > manifests/quick-start-postgres.yaml
+	kustomize build --load_restrictor=none manifests/quick-start/base/prometheus/local | ./hack/auto-gen-msg.sh > manifests/quick-start-prometheus.yaml
 
 # lint/test/etc
 
@@ -439,8 +440,12 @@ endif
 	grep '127.0.0.1[[:blank:]]*minio' /etc/hosts
 	grep '127.0.0.1[[:blank:]]*postgres' /etc/hosts
 	grep '127.0.0.1[[:blank:]]*mysql' /etc/hosts
+
+ifeq ($(RUN_MODE)-$(PROFILE),local-prometheus)
+	env SECURE=$(SECURE) ALWAYS_OFFLOAD_NODE_STATUS=$(ALWAYS_OFFLOAD_NODE_STATUS) LOG_LEVEL=$(LOG_LEVEL) UPPERIO_DB_DEBUG=$(UPPERIO_DB_DEBUG) VERSION=$(VERSION) AUTH_MODE=$(AUTH_MODE) NAMESPACED=$(NAMESPACED) NAMESPACE=$(KUBE_NAMESPACE) $(GOPATH)/bin/goreman -f ./hack/goreman/Procfile.prometheus -set-ports=false -logtime=false start
+endif
 ifeq ($(RUN_MODE),local)
-	env SECURE=$(SECURE) ALWAYS_OFFLOAD_NODE_STATUS=$(ALWAYS_OFFLOAD_NODE_STATUS) LOG_LEVEL=$(LOG_LEVEL) UPPERIO_DB_DEBUG=$(UPPERIO_DB_DEBUG) VERSION=$(VERSION) AUTH_MODE=$(AUTH_MODE) NAMESPACED=$(NAMESPACED) NAMESPACE=$(KUBE_NAMESPACE) $(GOPATH)/bin/goreman -set-ports=false -logtime=false start
+	env SECURE=$(SECURE) ALWAYS_OFFLOAD_NODE_STATUS=$(ALWAYS_OFFLOAD_NODE_STATUS) LOG_LEVEL=$(LOG_LEVEL) UPPERIO_DB_DEBUG=$(UPPERIO_DB_DEBUG) VERSION=$(VERSION) AUTH_MODE=$(AUTH_MODE) NAMESPACED=$(NAMESPACED) NAMESPACE=$(KUBE_NAMESPACE) $(GOPATH)/bin/goreman -f ./hack/goreman/Procfile -set-ports=false -logtime=false start
 endif
 
 .PHONY: wait
