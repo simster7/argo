@@ -4,9 +4,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"upper.io/db.v3/lib/sqlbuilder"
 
-	"github.com/argoproj/argo/config"
-	"github.com/argoproj/argo/persist/sqldb"
-	"github.com/argoproj/argo/util/instanceid"
+	"github.com/simster7/argo/v2/config"
+	"github.com/simster7/argo/v2/persist/sqldb"
+	"github.com/simster7/argo/v2/util/instanceid"
 )
 
 type Persistence struct {

@@ -20,13 +20,13 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/argoproj/argo/errors"
-	"github.com/argoproj/argo/util/archive"
-	errorsutil "github.com/argoproj/argo/util/errors"
-	"github.com/argoproj/argo/workflow/common"
-	execcommon "github.com/argoproj/argo/workflow/executor/common"
-	argowait "github.com/argoproj/argo/workflow/executor/common/wait"
-	osspecific "github.com/argoproj/argo/workflow/executor/os-specific"
+	"github.com/simster7/argo/v2/errors"
+	"github.com/simster7/argo/v2/util/archive"
+	errorsutil "github.com/simster7/argo/v2/util/errors"
+	"github.com/simster7/argo/v2/workflow/common"
+	execcommon "github.com/simster7/argo/v2/workflow/executor/common"
+	argowait "github.com/simster7/argo/v2/workflow/executor/common/wait"
+	osspecific "github.com/simster7/argo/v2/workflow/executor/os-specific"
 )
 
 type PNSExecutor struct {

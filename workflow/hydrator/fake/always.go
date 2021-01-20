@@ -1,9 +1,9 @@
 package fake
 
 import (
-	wfv1 "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
-	testutil "github.com/argoproj/argo/test/util"
-	"github.com/argoproj/argo/workflow/hydrator"
+	wfv1 "github.com/simster7/argo/v2/pkg/apis/workflow/v1alpha1"
+	testutil "github.com/simster7/argo/v2/test/util"
+	"github.com/simster7/argo/v2/workflow/hydrator"
 )
 
 // this test fake is nearly a Reference Implementation

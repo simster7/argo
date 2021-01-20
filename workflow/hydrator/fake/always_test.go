@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	wfv1 "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
+	wfv1 "github.com/simster7/argo/v2/pkg/apis/workflow/v1alpha1"
 )
 
 func TestAlways(t *testing.T) {

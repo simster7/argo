@@ -7,7 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/argoproj/argo/errors"
+	"github.com/simster7/argo/v2/errors"
 )
 
 type KubeletExecutor struct {

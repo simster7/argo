@@ -9,8 +9,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/argoproj/argo/errors"
-	"github.com/argoproj/argo/util"
+	"github.com/simster7/argo/v2/errors"
+	"github.com/simster7/argo/v2/util"
 )
 
 type flusher interface {

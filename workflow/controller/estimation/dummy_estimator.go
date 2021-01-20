@@ -3,7 +3,7 @@ package estimation
 import (
 	"time"
 
-	wfv1 "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
+	wfv1 "github.com/simster7/argo/v2/pkg/apis/workflow/v1alpha1"
 )
 
 type dummyEstimator struct{}

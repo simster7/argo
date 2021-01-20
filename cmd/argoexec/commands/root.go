@@ -12,14 +12,14 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/argoproj/argo"
-	"github.com/argoproj/argo/util"
-	"github.com/argoproj/argo/util/cmd"
-	"github.com/argoproj/argo/workflow/common"
-	"github.com/argoproj/argo/workflow/executor"
-	"github.com/argoproj/argo/workflow/executor/docker"
-	"github.com/argoproj/argo/workflow/executor/k8sapi"
-	"github.com/argoproj/argo/workflow/executor/kubelet"
-	"github.com/argoproj/argo/workflow/executor/pns"
+	"github.com/simster7/argo/v2/util"
+	"github.com/simster7/argo/v2/util/cmd"
+	"github.com/simster7/argo/v2/workflow/common"
+	"github.com/simster7/argo/v2/workflow/executor"
+	"github.com/simster7/argo/v2/workflow/executor/docker"
+	"github.com/simster7/argo/v2/workflow/executor/k8sapi"
+	"github.com/simster7/argo/v2/workflow/executor/kubelet"
+	"github.com/simster7/argo/v2/workflow/executor/pns"
 )
 
 const (

@@ -6,13 +6,13 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/argoproj/argo"
-	"github.com/argoproj/argo/cmd/argo/commands/archive"
-	"github.com/argoproj/argo/cmd/argo/commands/auth"
-	"github.com/argoproj/argo/cmd/argo/commands/client"
-	"github.com/argoproj/argo/cmd/argo/commands/clustertemplate"
-	"github.com/argoproj/argo/cmd/argo/commands/cron"
-	"github.com/argoproj/argo/cmd/argo/commands/template"
-	cmdutil "github.com/argoproj/argo/util/cmd"
+	"github.com/simster7/argo/v2/cmd/argo/commands/archive"
+	"github.com/simster7/argo/v2/cmd/argo/commands/auth"
+	"github.com/simster7/argo/v2/cmd/argo/commands/client"
+	"github.com/simster7/argo/v2/cmd/argo/commands/clustertemplate"
+	"github.com/simster7/argo/v2/cmd/argo/commands/cron"
+	"github.com/simster7/argo/v2/cmd/argo/commands/template"
+	cmdutil "github.com/simster7/argo/v2/util/cmd"
 )
 
 const (

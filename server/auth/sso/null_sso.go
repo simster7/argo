@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/argoproj/argo/server/auth/types"
+	"github.com/simster7/argo/v2/server/auth/types"
 )
 
 var NullSSO Interface = nullService{}

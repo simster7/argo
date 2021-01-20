@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/argoproj/argo/server/auth/sso"
+	"github.com/simster7/argo/v2/server/auth/sso"
 )
 
 type Modes map[Mode]bool
