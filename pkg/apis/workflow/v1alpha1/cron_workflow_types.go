@@ -65,6 +65,32 @@ type CronWorkflowStatus struct {
 	LastScheduledTime *metav1.Time `json:"lastScheduledTime" protobuf:"bytes,2,opt,name=lastScheduledTime"`
 	// Conditions is a list of conditions the CronWorkflow may have
 	Conditions Conditions `json:"conditions" protobuf:"bytes,3,rep,name=conditions"`
+
+	Backfill *BackfillStatus `json:"backfill,omitempty"`
+}
+
+type BackfillStatus struct {
+	Next     *metav1.Time      `json:"next,omitempty"`
+	Until    *metav1.Time      `json:"until,omitempty"`
+	Strategy *BackfillStrategy `json:"strategy,omitempty"`
+}
+
+type BackfillStrategy struct {
+	MustSucceed bool                        `json:"mustSucceed,omitempty"`
+	Sequential  *BackfillStrategySequential `json:"sequential,omitempty"`
+	Batch       *BackfillStrategyBatch      `json:"batch,omitempty"`
+	Active      []BackfillWorkflow          `json:"active,omitempty"`
+}
+
+type BackfillStrategySequential struct{}
+
+type BackfillStrategyBatch struct {
+	Size int `json:"size,omitempty"`
+}
+
+type BackfillWorkflow struct {
+	ScheduledTime *metav1.Time       `json:"scheduledTime,omitempty"`
+	Workflow      v1.ObjectReference `json:"workflow,omitempty"`
 }
 
 func (c *CronWorkflowStatus) HasActiveUID(uid types.UID) bool {
